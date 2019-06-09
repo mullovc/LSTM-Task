@@ -21,8 +21,8 @@ c_0_torch = Variable(torch.from_numpy(c_0).t().unsqueeze(0))
 
 lstm = LSTM(input_size, hidden_size)
 
-W_ih = torch.nn.Parameter(torch.from_numpy(lstm.W_ih.astype(np.float32)))
-W_hh = torch.nn.Parameter(torch.from_numpy(lstm.W_hh.astype(np.float32)))
+W_ih = torch.nn.Parameter(torch.from_numpy(lstm.lstm_layer.W_ih.astype(np.float32)))
+W_hh = torch.nn.Parameter(torch.from_numpy(lstm.lstm_layer.W_hh.astype(np.float32)))
 
 lstm_torch = torch.nn.LSTM(input_size, hidden_size, layers, batch_first=True, bias=False)
 lstm_torch.weight_ih_l0 = W_ih
@@ -38,4 +38,6 @@ c_ref_np = c_ref.data.numpy()
 is_equal = np.abs(output - ref_output_np) < EPSILON
 
 if is_equal.all():
-    print("output is equal to reference")
+    print("\x1b[32mtest succeeded\x1b[37m: output is equal to torch reference")
+else:
+    print("\x1b[31mtest failed\x1b[38m: output differs from torch reference")
