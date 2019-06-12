@@ -13,14 +13,12 @@ class Linear(Module):
 
         self.W = np.random.normal(0, std, [input_size, output_size])
 
-        self.parameters = { id(self.W) : self.W }
-
     def forward(self, x):
         self.x = x
         out = np.matmul(self.x, self.W)
         return out
 
     def backward(self, dLdOut):
-        self.gradients[id(self.W)] += np.dot(self.x.transpose(), dLdOut)
+        self.gradients["W"] += np.matmul(self.x.transpose(), dLdOut)
         dLdIn = np.dot(dLdOut, self.W.transpose())
         return dLdIn

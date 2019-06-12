@@ -16,8 +16,6 @@ class LegoModel(Module):
         self.out = Linear(lstm_size, output_size)
         self.f = Sigmoid()
 
-        self.sub_modules = [self.lstm, self.out, self.f]
-
     def forward(self, X):
         batch_size = X.shape[0]
         seq_len = X.shape[1]
@@ -27,7 +25,6 @@ class LegoModel(Module):
 
         lstm_out, _ = self.lstm(X, (h_0, c_0))
 
-        # out = sigmoid(np.matmul(lstm_out, self.W_out.transpose()))
         # out = self.f(self.out(lstm_out))
         out = self.f(self.out(lstm_out[:,-1,:]))
 

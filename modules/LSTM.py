@@ -10,8 +10,6 @@ class LSTM(Module):
 
         self.lstm_layer = LSTMLayer(input_size, hidden_size)
 
-        self.sub_modules = [self.lstm_layer]
-
     def forward(self, X, (h_n, c_n)):
         seq_len = X.shape[1]
 
