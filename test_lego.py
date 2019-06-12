@@ -2,6 +2,7 @@ import numpy as np
 # from util.util import cosine
 from modules.LSTM import LSTM
 from modules.lego_model import LegoModel
+from modules.sse import SSE
 
 EPS=10e-5
 lr = 0.02
@@ -35,21 +36,19 @@ else:
 
 
 m = LegoModel(input_size, hidden_size, output_size)
+sse = SSE()
 
 for i in range(10000):
-    outs = m(x)
+    out = m(x)
+    loss = sse(out, y)
 
     m.zero_grad()
-    if FINAL_ONLY:
-        dLdOut = outs - y
-        _ = m.backward(dLdOut)
-    else:
-        dLdOut = outs[0] - y
-        dLdWout, dW_ih, dW_hh = m.backward(dLdOut)
+    dLdOut = sse.backward()
+    _ = m.backward(dLdOut)
 
     m.apply_gradient(lr)
 
     if FINAL_ONLY:
-        print(outs.round(1))
+        print(out.round(1))
     else:
-        print(outs[0].round(1))
+        print(out[0].round(1))

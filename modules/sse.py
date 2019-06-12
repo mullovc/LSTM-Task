@@ -10,9 +10,9 @@ class SSE(Module):
     def forward(self, x, y):
         self.x = x
         self.y = y
-        out = np.divide(np.sum(np.sqare(self.x - self.y), 1), 2)
+        out = np.divide(np.sum(np.square(self.x - self.y), 1), 2)
         return out
 
-    def backward(self, dLdOut):
+    def backward(self):
         dLdIn = self.x - self.y
         return dLdIn
