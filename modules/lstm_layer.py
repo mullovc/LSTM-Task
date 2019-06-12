@@ -5,11 +5,17 @@ from numpy import tanh
 
 class LSTMLayer(Module):
     def __init__(self, input_size, hidden_size):
+        super(LSTMLayer, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
 
-        self.W_hh = np.random.randn(4*hidden_size, hidden_size).astype(np.float32)
-        self.W_ih = np.random.randn(4*hidden_size, input_size).astype(np.float32)
+        std = 1.0 / np.sqrt(input_size + hidden_size)
+
+        self.W_hh = np.random.normal(0, std, [4*hidden_size, hidden_size]).astype(np.float32)
+        self.W_ih = np.random.normal(0, std, [4*hidden_size,  input_size]).astype(np.float32)
+
+        self.parameters = { id(self.W_hh) : self.W_hh,
+                            id(self.W_ih) : self.W_ih }
 
     def forward(self, x_t, (h_in, c_in)):
         y_t = np.dot(self.W_ih, x_t) + np.dot(self.W_hh, h_in)
@@ -52,8 +58,10 @@ class LSTMLayer(Module):
                                dLdcout * dcoutdg * dgdy,
                                dLdhout * dhoutdo * dody], 0)
 
-        dLdW_ih = np.dot(dLdy, x_t.transpose())
-        dLdW_hh = np.dot(dLdy, h_in.transpose())
+        # self.dLdW_ih += np.dot(dLdy, x_t.transpose())
+        # self.dLdW_hh += np.dot(dLdy, h_in.transpose())
+        self.gradients[id(self.W_ih)] += np.dot(dLdy, x_t.transpose())
+        self.gradients[id(self.W_hh)] += np.dot(dLdy, h_in.transpose())
 
         dLdhin = np.dot(self.W_hh.transpose(), dLdy)
         dLdx   = np.dot(self.W_ih.transpose(), dLdy)
@@ -61,4 +69,4 @@ class LSTMLayer(Module):
         dcoutdcin = f_t
         dLdcin = dLdcout * dcoutdcin
 
-        return (dLdhin, dLdcin), (dLdW_ih, dLdW_hh)
+        return (dLdhin, dLdcin)
