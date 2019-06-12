@@ -21,9 +21,6 @@ class Model(Module):
 
         lstm_out, _, lstm_activations = self.lstm(X, (h_0, c_0))
 
-        # out = [np.dot(lo, self.W_out.transpose()) for lo in lstm_out]
-        # out = np.stack(out)
-        # same as the above?
         out = sigmoid(np.matmul(lstm_out, self.W_out.transpose()))
 
         return out, (lstm_activations, lstm_out, out)
@@ -55,8 +52,8 @@ class Model(Module):
         lstm_out = lstm_out[:,-1,:]
 
         # dLdLSTM = np.dot(self.W_out.transpose(), dLdOut * out_activation)
-        # TODO missing sigmoid layer
-        dLdW = np.dot(dLdOut.transpose(), lstm_out)
+        dLdSigmoid = dLdOut * out_activation[:,-1,:] * (1 - out_activation[:,-1,:])
+        dLdW = np.dot(dLdSigmoid.transpose(), lstm_out)
         dLdLSTM = np.dot(dLdOut, self.W_out).transpose()
 
         dW_ih, dW_hh = self.lstm.backward(lstm_activations, dLdLSTM)
