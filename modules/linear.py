@@ -21,8 +21,6 @@ class Linear(Module):
         return out
 
     def backward(self, dLdOut):
-        # self.dLdW = np.dot(dLdOut.transpose(), self.x)
-        # self.gradients[id(self.W)] += np.dot(dLdOut.transpose(), self.x)
         self.gradients[id(self.W)] += np.dot(self.x.transpose(), dLdOut)
         dLdIn = np.dot(dLdOut, self.W.transpose())
         return dLdIn

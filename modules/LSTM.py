@@ -10,6 +10,8 @@ class LSTM(Module):
 
         self.lstm_layer = LSTMLayer(input_size, hidden_size)
 
+        self.sub_modules = [self.lstm_layer]
+
     def forward(self, X, (h_n, c_n)):
         seq_len = X.shape[1]
 
@@ -38,9 +40,3 @@ class LSTM(Module):
         dLdOut_t = (dLdOut.transpose(), 0)
         for act_t in self.activations[::-1]:
             dLdOut_t = self.lstm_layer.backward(act_t, dLdOut_t)
-
-    def apply_gradient(self, learning_rate):
-        self.lstm_layer.apply_gradient(learning_rate)
-
-    def zero_grad(self):
-        self.lstm_layer.zero_grad()

@@ -16,6 +16,8 @@ class LegoModel(Module):
         self.out = Linear(lstm_size, output_size)
         self.f = Sigmoid()
 
+        self.sub_modules = [self.lstm, self.out, self.f]
+
     def forward(self, X):
         batch_size = X.shape[0]
         seq_len = X.shape[1]
@@ -57,11 +59,3 @@ class LegoModel(Module):
         dLdIn = self.out.backward(dLdIn)
         dLdIn = self.lstm.backward(dLdIn)
         return dLdIn
-
-    def apply_gradient(self, learning_rate):
-        self.out.apply_gradient(learning_rate)
-        self.lstm.apply_gradient(learning_rate)
-
-    def zero_grad(self):
-        self.out.zero_grad()
-        self.lstm.zero_grad()
