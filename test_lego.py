@@ -3,6 +3,7 @@ import numpy as np
 from modules.LSTM import LSTM
 from modules.lego_model import LegoModel
 from modules.sse import SSE
+from modules.softmax_cross_entropy import SoftmaxCrossEntropy
 
 EPS=10e-5
 lr = 0.02
@@ -25,7 +26,10 @@ c_0 = np.random.randn(hidden_size, batch_size).astype(np.float32)
 # target is a 1-D vector. If doing weight updates for each times step output,
 # target is a sequence.
 if FINAL_ONLY:
-    y = np.array([0, 1, 0, 0], dtype=np.float32)#.reshape([output_size, 1])
+    # target for sigmoid output
+    #y = np.array([0, 1, 0, 0], dtype=np.float32)#.reshape([output_size, 1])
+    # target index for sofmax output
+    y = 1
 else:
     # if target is a sequence, manually define a target sequence with `seq_len` 5
     y = np.array([[1, 0, 0, 0],
@@ -36,14 +40,15 @@ else:
 
 
 m = LegoModel(input_size, hidden_size, output_size)
-sse = SSE()
+# criterion = SSE()
+criterion = SoftmaxCrossEntropy()
 
 for i in range(10000):
     out = m(x)
-    loss = sse(out, y)
+    loss = criterion(out, y)
 
     m.zero_grad()
-    dLdOut = sse.backward()
+    dLdOut = criterion.backward()
     _ = m.backward(dLdOut)
 
     m.apply_gradient(lr)

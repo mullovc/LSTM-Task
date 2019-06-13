@@ -1,7 +1,6 @@
 import numpy as np
 from modules.module import Module
 from modules.LSTM import LSTM
-from util.util import sigmoid
 
 class Linear(Module):
     def __init__(self, input_size, output_size):

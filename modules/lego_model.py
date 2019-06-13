@@ -3,7 +3,7 @@ from modules.module import Module
 from modules.LSTM import LSTM
 from modules.linear import Linear
 from modules.sigmoid import Sigmoid
-from modules.sse import SSE
+from modules.softmax_cross_entropy import Softmax
 
 class LegoModel(Module):
     def __init__(self, input_size, lstm_size, output_size):
@@ -14,7 +14,8 @@ class LegoModel(Module):
 
         self.lstm = LSTM(input_size, lstm_size)
         self.out = Linear(lstm_size, output_size)
-        self.f = Sigmoid()
+        # self.f = Sigmoid()
+        self.f = Softmax()
 
     def forward(self, X):
         batch_size = X.shape[0]
@@ -52,7 +53,8 @@ class LegoModel(Module):
     #    return dLdW, dW_ih, dW_hh
 
     def backward(self, dLdOut):
-        dLdIn = self.f.backward(dLdOut)
-        dLdIn = self.out.backward(dLdIn)
+        # dLdIn = self.f.backward(dLdOut)
+        # dLdIn = self.out.backward(dLdIn)
+        dLdIn = self.out.backward(dLdOut)
         dLdIn = self.lstm.backward(dLdIn)
         return dLdIn
