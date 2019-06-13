@@ -64,4 +64,4 @@ class LSTMLayer(Module):
         dcoutdcin = f_t
         dLdcin = dLdcout * dcoutdcin
 
-        return (dLdhin, dLdcin)
+        return dLdx, (dLdhin, dLdcin)
