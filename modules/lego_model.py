@@ -27,7 +27,8 @@ class LegoModel(Module):
         lstm_out, _ = self.lstm(X, (h_0, c_0))
 
         # out = self.f(self.out(lstm_out))
-        out = self.f(self.out(lstm_out[:,-1,:]))
+        # out = self.f(self.out(lstm_out[:,-1,:]))
+        out = self.out(lstm_out[:,-1,:])
 
         return out
 

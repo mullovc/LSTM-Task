@@ -3,7 +3,7 @@ import numpy as np
 from modules.LSTM import LSTM
 from modules.lego_model import LegoModel
 from modules.sse import SSE
-from modules.softmax_cross_entropy import SoftmaxCrossEntropy
+from modules.softmax_cross_entropy import Softmax, SoftmaxCrossEntropy
 
 EPS=10e-5
 lr = 0.02
@@ -40,8 +40,8 @@ else:
 
 
 m = LegoModel(input_size, hidden_size, output_size)
-# criterion = SSE()
 criterion = SoftmaxCrossEntropy()
+softmax = Softmax()
 
 for i in range(10000):
     out = m(x)
@@ -54,6 +54,6 @@ for i in range(10000):
     m.apply_gradient(lr)
 
     if FINAL_ONLY:
-        print(out.round(1))
+        print(softmax(out).round(1))
     else:
         print(out[0].round(1))
