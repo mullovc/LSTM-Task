@@ -18,17 +18,17 @@ class LegoModel(Module):
         self.f = Softmax()
 
     def forward(self, X):
-        batch_size = X.shape[0]
-        seq_len = X.shape[1]
+        seq_len    = X.shape[0]
+        batch_size = X.shape[1]
 
-        h_0 = np.random.randn(self.lstm_size, batch_size).astype(np.float32)
-        c_0 = np.random.randn(self.lstm_size, batch_size).astype(np.float32)
+        h_0 = np.random.randn(batch_size, self.lstm_size).astype(np.float32)
+        c_0 = np.random.randn(batch_size, self.lstm_size).astype(np.float32)
 
         lstm_out, _ = self.lstm(X, (h_0, c_0))
 
         # out = self.f(self.out(lstm_out))
         # out = self.f(self.out(lstm_out[:,-1,:]))
-        out = self.out(lstm_out[:,-1,:])
+        out = self.out(lstm_out[-1])
 
         return out
 

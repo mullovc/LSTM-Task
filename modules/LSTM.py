@@ -15,7 +15,7 @@ class LSTM(Module):
         Does the LSTM forward for a sequence `X`.
 
         Arguments:
-        X: numpy array of shape (batch_size x seq_len x input_size)
+        X: numpy array of shape (seq_len x batch_size x input_size)
             The input sequence.
         h_n: numpy array of shape (batch_size x hidden_size)
             The initial hidden state.
@@ -23,28 +23,24 @@ class LSTM(Module):
             The initial cell state.
 
         Returns: output, (h_n, c_n)
-        output: numpy array of shape (batch_size x seq_len x hidden_size)
+        output: numpy array of shape (seq_len x batch_size x hidden_size)
             Stack of LSTM outputs (hidden states) at each timestep.
         h_n: numpy array of shape (batch_size x hidden_size)
             Final hidden state after consuming the input sequence.
         c_n: numpy array of shape (batch_size x hidden_size)
             Final cell state after consuming the input sequence.
         '''
-        seq_len = X.shape[1]
+        seq_len = X.shape[0]
 
         hiddens = []
         self.activations = []
-        for i in range(seq_len):
-            x_t = X[:, i, :].transpose()
-
-            h_n, c_n, act_t = self.lstm_layer(x_t, (h_n, c_n))
+        for t in range(seq_len):
+            h_n, c_n, act_t = self.lstm_layer(X[t], (h_n, c_n))
 
             hiddens.append(h_n)
             self.activations.append(act_t)
 
-        hiddens = np.stack(hiddens).transpose([2, 0, 1])
-
-        return hiddens, (h_n, c_n)
+        return np.stack(hiddens), (h_n, c_n)
 
     def backward(self, dLdOut):
         '''
@@ -62,9 +58,9 @@ class LSTM(Module):
         dLdX: list of numpy arrays of shape (batch_size x hidden_size)
             Gradients for each timestep w.r.t. the LSTM inputs.
         '''
-        dLdOut_t = (dLdOut.transpose(), 0)
+        dLdOut_t = (dLdOut, 0)
         dLdX = []
         for act_t in self.activations[::-1]:
             dLdx_t, dLdOut_t = self.lstm_layer.backward(act_t, dLdOut_t)
-            dLdX.append(dLdx_t.transpose())
+            dLdX.append(dLdx_t)
         return dLdX

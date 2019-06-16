@@ -17,10 +17,7 @@ seq_len = 5
 # time step output
 FINAL_ONLY = True
 
-x = np.random.randn(1, seq_len, input_size).astype(np.float32)
-h_0 = np.random.randn(hidden_size, batch_size).astype(np.float32)
-c_0 = np.random.randn(hidden_size, batch_size).astype(np.float32)
-
+x = np.random.randn(seq_len, 1, input_size).astype(np.float32)
 
 # Define target vectors. If doing weight updates for last time step only,
 # target is a 1-D vector. If doing weight updates for each times step output,
