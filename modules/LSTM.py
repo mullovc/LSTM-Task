@@ -42,6 +42,16 @@ class LSTM(Module):
 
         return np.stack(hiddens), (h_n, c_n)
 
+    def backward_once(self, activations, dLdOut):
+        dLdX = []
+
+        dLdOut_t = (dLdOut, 0)
+        for act_t in activations[::-1]:
+            dLdx_t, dLdOut_t = self.lstm_layer.backward(act_t, dLdOut_t)
+            dLdX.append(dLdx_t)
+
+        return dLdX[::-1]
+
     def backward(self, dLdOut):
         '''
         Differentiate error w.r.t. weights and w.r.t. input.
@@ -58,9 +68,17 @@ class LSTM(Module):
         dLdX: list of numpy arrays of shape (batch_size x hidden_size)
             Gradients for each timestep w.r.t. the LSTM inputs.
         '''
-        dLdOut_t = (dLdOut, 0)
-        dLdX = []
-        for act_t in self.activations[::-1]:
-            dLdx_t, dLdOut_t = self.lstm_layer.backward(act_t, dLdOut_t)
-            dLdX.append(dLdx_t)
-        return dLdX
+        if dLdOut.ndim == 2:
+            return self.backward_once(self.activations, dLdOut)
+        elif dLdOut.ndim == 3:
+            seq_len    = dLdOut.shape[0]
+            batch_size = dLdOut.shape[1]
+            dLdX = np.zeros([seq_len, batch_size, self.input_size])
+
+            for t in range(dLdOut.shape[0], 0, -1):
+                dX_t = self.backward_once(self.activations[:t], dLdOut[t-1])
+
+                for x_acc, x_new in zip(dLdX[:t], dX_t):
+                    x_acc += x_new
+
+            return dLdX

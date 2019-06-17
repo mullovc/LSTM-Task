@@ -33,7 +33,11 @@ class LSTMLayer(Module):
     def backward(self, activations, dLdOut):
         '''
         Differentiate layer outputs w.r.t. weights and w.r.t. inputs.
+
         '''
+        # remark:
+        # h_out and c_out are h_t and c_t, while h_in and c_in are h_{t-1} and c_{t-1}
+        # To avoid unreadable variable names $\frac{dL}{dh_{t}}$ is written as `dLdhout`
         tanh_c_out, o_t, g_t, f_t, i_t, h_in, c_in, x_t = activations
         dLdhout, dLdcout_part = dLdOut
 
