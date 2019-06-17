@@ -6,11 +6,12 @@ from modules.sigmoid import Sigmoid
 from modules.softmax_cross_entropy import Softmax
 
 class LegoModel(Module):
-    def __init__(self, input_size, lstm_size, output_size):
+    def __init__(self, input_size, lstm_size, output_size, full_grad=False):
         super(LegoModel, self).__init__()
         self.input_size = input_size
         self.lstm_size = lstm_size
         self.output_size = output_size
+        self.full_grad = full_grad
 
         self.lstm = LSTM(input_size, lstm_size)
         self.out = Linear(lstm_size, output_size)
@@ -26,8 +27,10 @@ class LegoModel(Module):
 
         lstm_out, _ = self.lstm(X, (h_0, c_0))
 
-        # out = self.out(lstm_out)
-        out = self.out(lstm_out[-1])
+        if self.full_grad:
+            out = self.out(lstm_out)
+        else:
+            out = self.out(lstm_out[-1])
 
         return out
 

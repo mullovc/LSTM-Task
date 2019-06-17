@@ -1,6 +1,4 @@
 import numpy as np
-# from util.util import cosine
-from modules.LSTM import LSTM
 from modules.lego_model import LegoModel
 from modules.sse import SSE
 from modules.softmax_cross_entropy import Softmax, SoftmaxCrossEntropy
@@ -26,19 +24,17 @@ if FINAL_ONLY:
     # target for sigmoid output
     #y = np.array([0, 1, 0, 0], dtype=np.float32)#.reshape([output_size, 1])
     # target index for sofmax output
-    y = 1
+    y = [np.arange(batch_size), 1]
+    dim = 1
 else:
     # if target is a sequence, manually define a target sequence with `seq_len` 5
-    y = np.array([[1, 0, 0, 0],
-                  [0, 1, 0, 0],
-                  [0, 0, 1, 0],
-                  [0, 0, 1, 0],
-                  [0, 0, 0, 1]], dtype=np.float32)
+    y = [np.arange(seq_len), np.arange(batch_size), [0, 1, 2, 2, 3]]
+    dim = 2
 
 
-m = LegoModel(input_size, hidden_size, output_size)
-criterion = SoftmaxCrossEntropy()
-softmax = Softmax()
+m = LegoModel(input_size, hidden_size, output_size, not FINAL_ONLY)
+criterion = SoftmaxCrossEntropy(dim)
+softmax = Softmax(dim)
 
 for i in range(10000):
     out = m(x)
@@ -50,7 +46,4 @@ for i in range(10000):
 
     m.apply_gradient(lr)
 
-    if FINAL_ONLY:
-        print(softmax(out).round(1))
-    else:
-        print(out[0].round(1))
+    print(softmax(out).round(1))
