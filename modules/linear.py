@@ -18,6 +18,10 @@ class Linear(Module):
         return out
 
     def backward(self, dLdOut):
-        self.gradients["W"] += np.matmul(self.x.transpose(), dLdOut)
-        dLdIn = np.dot(dLdOut, self.W.transpose())
+        # flatten all extra dimensions into one batch dimension
+        x2D = self.x.reshape([-1,self.x.shape[-1]])
+        dLdOut2D = dLdOut.reshape([-1,dLdOut.shape[-1]])
+
+        self.gradients["W"] += np.matmul(x2D.transpose(), dLdOut2D)
+        dLdIn = np.matmul(dLdOut, self.W.transpose())
         return dLdIn

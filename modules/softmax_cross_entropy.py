@@ -9,7 +9,7 @@ class Softmax(Module):
 
     def forward(self, x):
         exp_x = np.exp(x)
-        return np.divide(exp_x, np.sum(exp_x, self.dim))
+        return np.divide(exp_x, np.sum(exp_x, self.dim, keepdims=True))
 
     def backward(self, dLdOut):
         raise NotImplementedError
@@ -22,12 +22,12 @@ class SoftmaxCrossEntropy(Module):
     def forward(self, x, t):
         self.t = t
         self.exp_x = np.exp(x)
-        self.sum_exp_x = np.sum(self.exp_x, self.dim)
-        return -x[:,t] + np.log(self.sum_exp_x)
+        self.sum_exp_x = np.sum(self.exp_x, self.dim, keepdims=True)
+        return -x[t] + np.log(self.sum_exp_x)
 
     def backward(self):
         '''
-        $ dL(x)/dx = t * softmax(x) $
+        $ dL(x)/dx = -t * softmax(x) $
 
         where $x$ is the input, $t$ is the target and $L$ is the cross entropy
         loss function. Assuming that $t$ is a one-hot vector (given as index
@@ -36,5 +36,5 @@ class SoftmaxCrossEntropy(Module):
         '''
         sm = np.divide(self.exp_x, self.sum_exp_x)
         dLdx = np.zeros_like(self.exp_x)
-        dLdx[:,self.t] = -sm[:,self.t]
+        dLdx[self.t] = -sm[self.t]
         return dLdx
