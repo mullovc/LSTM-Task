@@ -32,6 +32,33 @@ class Module(object):
     def backward(self, *args, **kwargs):
         raise NotImplementedError
 
+    def parameter_gradcheck(self, loss_func=np.sum, *args, **kwargs):
+        EPS = 10e-3
+        gradients = {}
+        for parameter in self.parameters:
+            gradient = np.zeros_like(self.parameters[parameter])
+
+            def _gradcheck(param, grad):
+                if param.ndim > 1:
+                    for p, g in zip(param, grad):
+                        _gradcheck(p, g)
+                else:
+                    for i in range(len(param)):
+                        param[i] -= EPS/2
+                        y = self.forward(*args, **kwargs)
+                        loss_l = loss_func(y)
+                        param[i] += EPS
+                        y = self.forward(*args, **kwargs)
+                        loss_r = loss_func(y)
+                        param[i] -= EPS/2
+
+                        grad[i] += (loss_r - loss_l) / EPS
+
+            _gradcheck(self.parameters[parameter], gradient)
+            gradients[parameter] = gradient
+
+        return gradients
+
     def __getattr__(self, name):
         if name in self.sub_modules:
             return self.sub_modules[name]

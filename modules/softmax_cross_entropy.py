@@ -27,7 +27,7 @@ class SoftmaxCrossEntropy(Module):
 
     def backward(self):
         '''
-        $ dL(x)/dx = -t * softmax(x) $
+        $ dL(softmax(x))/dx = -t * softmax(x) $
 
         where $x$ is the input, $t$ is the target and $L$ is the cross entropy
         loss function. Assuming that $t$ is a one-hot vector (given as index

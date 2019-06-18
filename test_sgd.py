@@ -3,7 +3,6 @@ from modules.lego_model import LegoModel
 from modules.sse import SSE
 from modules.softmax_cross_entropy import Softmax, SoftmaxCrossEntropy
 
-EPS=10e-5
 lr = 0.02
 input_size = 8
 hidden_size = 6
