@@ -27,14 +27,12 @@ class SoftmaxCrossEntropy(Module):
 
     def backward(self):
         '''
-        $ dL(softmax(x))/dx = -t * softmax(x) $
+        $ dL(softmax(x))/dx = softmax(x) - t $
 
         where $x$ is the input, $t$ is the target and $L$ is the cross entropy
-        loss function. Assuming that $t$ is a one-hot vector (given as index
-        for the one-hot dimension), the gradient becomes a vector with
-        zero-entries in all but the one-hot dimension.
+        loss function. $t$ is a one-hot vector given as index of the one-hot
+        dimension.
         '''
-        sm = np.divide(self.exp_x, self.sum_exp_x)
-        dLdx = np.zeros_like(self.exp_x)
-        dLdx[self.t] = -sm[self.t]
+        dLdx = np.divide(self.exp_x, self.sum_exp_x)
+        dLdx[self.t] -= 1
         return dLdx
