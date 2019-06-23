@@ -8,6 +8,7 @@ class Linear(Module):
         self.input_size = input_size
         self.output_size = output_size
 
+        # weight initilization
         std = 1.0 / np.sqrt(input_size + output_size)
 
         self.W = np.random.normal(0, std, [input_size, output_size])

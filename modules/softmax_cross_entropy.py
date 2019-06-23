@@ -9,10 +9,45 @@ class Softmax(Module):
 
     def forward(self, x):
         exp_x = np.exp(x)
-        return np.divide(exp_x, np.sum(exp_x, self.dim, keepdims=True))
+        
+        output = np.divide(exp_x, np.sum(exp_x, self.dim, keepdims=True))
+        return self.output
 
     def backward(self, dLdOut):
-        raise NotImplementedError
+        
+        return self.output * ( 1 - self.output)
+        # raise NotImplementedError
+        
+class NegativeLogLikelihood(Module):
+
+    def forward(self, x, y):    
+        
+        exp_x = np.exp(x)
+        prob_x = np.divide(exp_x, np.sum(exp_x, 2, keepdims=True))
+        
+        log_prob =  np.log(prob_x)
+        
+        total_loss = 0
+        
+        for t in range(x.shape[0]):
+        
+            for b in range(x.shape[1]):
+                
+                total_loss -= log_prob[t][b][y[t][b]]
+        
+        return total_loss
+        
+    def backward(self, x, y):
+    
+        exp_x = np.exp(x)
+        prob_x = np.divide(exp_x, np.sum(exp_x, 2, keepdims=True))
+        dLdx = prob_x
+        for t in range(x.shape[0]):
+            for b in range(x.shape[1]):
+                dLdx[t][b][y[t][b]] -= 1
+        
+        return dLdx 
+        #return x - 1
 
 class SoftmaxCrossEntropy(Module):
     def __init__(self, dim=1):
@@ -21,9 +56,13 @@ class SoftmaxCrossEntropy(Module):
 
     def forward(self, x, t):
         self.t = t
-        self.exp_x = np.exp(x)
+        
+        self.exp_x = np.exp(x)  
         self.sum_exp_x = np.sum(self.exp_x, self.dim, keepdims=True)
-        return -x[t] + np.log(self.sum_exp_x)
+        
+        ce = -x[t] + np.log(self.sum_exp_x)
+        
+        return np.sum(ce)
 
     def backward(self):
         '''

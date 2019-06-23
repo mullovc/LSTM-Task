@@ -8,9 +8,9 @@ class LSTM(Module):
         self.input_size = input_size
         self.hidden_size = hidden_size
 
-        self.lstm_layer = LSTMLayer(input_size, hidden_size)
+        self.cell = LSTMLayer(input_size, hidden_size)
 
-    def forward(self, X, (h_n, c_n)):
+    def forward(self, X, prev_h):
         '''
         Does the LSTM forward for a sequence `X`.
 
@@ -30,12 +30,13 @@ class LSTM(Module):
         c_n: numpy array of shape (batch_size x hidden_size)
             Final cell state after consuming the input sequence.
         '''
+        h_n, c_n = prev_h
         seq_len = X.shape[0]
 
         hiddens = []
         self.activations = []
         for t in range(seq_len):
-            h_n, c_n, act_t = self.lstm_layer(X[t], (h_n, c_n))
+            h_n, c_n, act_t = self.cell(X[t], (h_n, c_n))
 
             hiddens.append(h_n)
             self.activations.append(act_t)
@@ -47,7 +48,7 @@ class LSTM(Module):
 
         dLdOut_t = (dLdOut, 0)
         for act_t in activations[::-1]:
-            dLdx_t, dLdOut_t = self.lstm_layer.backward(act_t, dLdOut_t)
+            dLdx_t, dLdOut_t = self.cell.backward(act_t, dLdOut_t)
             dLdX.append(dLdx_t)
 
         return dLdX[::-1]

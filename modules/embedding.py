@@ -24,7 +24,7 @@ class Embedding(Module):
     def backward(self, dLdOut):
         x, = self.x
         # flatten all extra dimensions into one batch dimension
-        dLdOut2D = dLdOut.reshape([-1,dLdOut.shape[-1]])
+        dLdOut2D = dLdOut.reshape([-1, dLdOut.shape[-1]])
         for x_i, dOut in zip(x, dLdOut2D):
             self.gradients["W"][x_i] += dOut
 

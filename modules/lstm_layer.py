@@ -14,7 +14,9 @@ class LSTMLayer(Module):
         self.W_hh = np.random.normal(0, std, [hidden_size, 4*hidden_size]).astype(np.float32)
         self.W_ih = np.random.normal(0, std, [input_size,  4*hidden_size]).astype(np.float32)
 
-    def forward(self, x_t, (h_in, c_in)):
+    def forward(self, x_t, prev_h):
+
+        h_in, c_in = prev_h
         y_t = np.dot(x_t, self.W_ih) + np.dot(h_in, self.W_hh)
         i_t, f_t, g_t, o_t = np.split(y_t, 4, axis=1)
 

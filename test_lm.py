@@ -34,11 +34,17 @@ def print_pred(pred, tgt):
     sys.stdout.write("\r" + buf + normal)
 
 for i in range(10000):
+    
+    print(i)
+    
+    m.reset_hidden(batch_size)
     out = m(x)
+    
     loss = criterion(out, y)
 
     m.zero_grad()
     dLdOut = criterion.backward()
+    print(dLdOut.shape)
     _ = m.backward(dLdOut)
 
     m.apply_gradient(lr)
