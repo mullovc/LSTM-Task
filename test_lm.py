@@ -16,7 +16,12 @@ output_size = input_size
 #x = np.eye(input_size)[[0] + sequence[:-1]].reshape([seq_len, 1, input_size])
 x = np.array([0] + sequence[:-1]).reshape([seq_len, 1])
 
-y = (np.arange(seq_len), np.arange(batch_size), sequence)
+seq_idx = np.arange(seq_len).repeat(batch_size, 0)
+batch_idx = np.expand_dims(np.arange(batch_size), 0).repeat(seq_len, 0).flatten()
+tgt_idx = np.array(sequence).repeat(batch_size, 0)
+
+y = (seq_idx, batch_idx, tgt_idx)
+# y = (np.arange(seq_len), np.arange(batch_size), sequence)
 
 
 m = LanguageModel(input_size, embedding_size, hidden_size, output_size)
