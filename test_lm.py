@@ -2,26 +2,28 @@ import sys
 import numpy as np
 from modules.language_model import LanguageModel
 from modules.lego_model import LegoModel
-from modules.softmax_cross_entropy import Softmax, SoftmaxCrossEntropy
+from modules.softmax_cross_entropy import SoftmaxCrossEntropy
 
 lr = 0.01
-hidden_size = 32
-embedding_size = 32
-batch_size  = 1
-sequence    = [2, 3, 4, 1, 1, 2, 3, 2, 2, 1, 4, 2]
-seq_len     = len(sequence)
-input_size  = max(sequence) + 1
-output_size = input_size
+embedding_size = 16
+hidden_size    = 16
+batch_size     = 64
+sequence       = [2, 3, 4, 1, 1, 2, 3, 2, 2, 1, 4, 2]
+seq_len        = len(sequence)
+input_size     = max(sequence) + 1
+output_size    = input_size
 
-#x = np.eye(input_size)[[0] + sequence[:-1]].reshape([seq_len, 1, input_size])
-x = np.array([0] + sequence[:-1]).reshape([seq_len, 1])
+x = np.expand_dims(np.array([0] + sequence[:-1]), 1).repeat(batch_size, 1)
 
-y = (np.arange(seq_len), np.arange(batch_size), sequence)
+# y = (np.arange(seq_len), np.arange(batch_size), sequence)
+seq_idx = np.arange(seq_len).repeat(batch_size, 0)
+batch_idx = np.expand_dims(np.arange(batch_size), 0).repeat(seq_len, 0).flatten()
+tgt_idx = np.array(sequence).repeat(batch_size, 0)
+y = (seq_idx, batch_idx, tgt_idx)
 
 
 m = LanguageModel(input_size, embedding_size, hidden_size, output_size)
 criterion = SoftmaxCrossEntropy(dim=2)
-softmax = Softmax(dim=2)
 
 def print_pred(pred, tgt):
     # this cryptic code is responsible for colored in-place output of the
@@ -33,7 +35,7 @@ def print_pred(pred, tgt):
     buf = " ".join(["{}{: 2}".format(green if p == t else red, p) for p, t in zip(pred, tgt)])
     sys.stdout.write("\r" + buf + normal)
 
-for i in range(10000):
+for i in range(1000):
     out = m(x)
     loss = criterion(out, y)
 
@@ -44,4 +46,6 @@ for i in range(10000):
     m.apply_gradient(lr)
 
     pred = np.argmax(out, 2)
-    print_pred(pred.flatten(), sequence)
+
+    for p in pred.transpose():
+        print_pred(p.flatten(), sequence)
